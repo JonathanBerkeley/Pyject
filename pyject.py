@@ -24,7 +24,7 @@ except ModuleNotFoundError:
 #Change this string to the name of the process you wish to target ===============================================
 target_process = ""
 if target_process == "":
-    print("You need to enter a process  name in the target process field within the python file")
+    print("You need to enter a process name in the target process field within the python file")
     sys.exit(5)
 
 #Change this string if you want a different logfile name

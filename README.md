@@ -1,4 +1,4 @@
-# pyject
+# pyject.py - A process injector that supports multiple DLLs
 Windows multiple DLL injector in python
 
 You must include the DLLs you wish to inject in the same directory. It will attempt to inject all DLLs that are in the same directory as itself.

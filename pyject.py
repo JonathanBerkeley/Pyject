@@ -41,7 +41,7 @@ def main():
             logfile.write("\t(INFO) Preparing to load " + str(dll) + "\n")
     except Exception as ex:
         print(ex)
-        logfile.write("\t" + str(ex));
+        logfile.write(str(ex));
         safe_exit(2)
     
     logfile.write("\t(INFO) Waiting for " + target_process + "\n")

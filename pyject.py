@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 try: 
     import psutil
 except ModuleNotFoundError:
-    print("Required package 'psutil' could not be automatically installed. Install psutil and try again.", ex)
+    print("Required package 'psutil' could not be automatically installed. Install psutil and try again.")
     sys.exit(1)
 
 #Change this string to the name of the process you wish to target ===============================================

@@ -9,6 +9,7 @@ import glob
 import time
 import subprocess
 import ctypes
+from ctypes import wintypes
 try:
     import psutil
 except ModuleNotFoundError:
@@ -31,7 +32,7 @@ if target_process == "":
 logfile = open("pyject.log", "a+")
 def main():
     dlls = None
-    logfile.writelines("\nNew session:\n");
+    logfile.writelines("\nNew session:\n")
     
     try:
         dlls = glob.glob("*.dll")
@@ -41,7 +42,7 @@ def main():
             logfile.write("\t(INFO) Preparing to load " + str(dll) + "\n")
     except Exception as ex:
         print(ex)
-        logfile.write(str(ex));
+        logfile.write(str(ex))
         safe_exit(2)
     
     logfile.write("\t(INFO) Waiting for " + target_process + "\n")

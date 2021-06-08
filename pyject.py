@@ -1,7 +1,4 @@
-# Developed for fun by Jonathan Berkeley - 2020
-# https://opensource.org/licenses/MIT
-# Shared under MIT license. I am not liable for any claims or damages. Read MIT license for more details.
-# Please give credit if you use/repurpose this source :)
+# Developed for fun - 2020
 
 import sys
 import os
@@ -35,7 +32,7 @@ logfile = open("pyject.log", "a+")
 
 def main():
     if os.name != "nt":
-        print("Script targets Windows operating systems only")
+        print("Script targets Windows operating systems only. (Exiting)")
         sys.exit(0)
 
     dlls = None
@@ -56,10 +53,12 @@ def main():
     process_id = -1
     while process_id == -1:
         _ = os.system("cls")
-        print("Waiting for " + target_process + " to start...")
+        print("Waiting for ", target_process, " to start...")
         process_id = if_proc_running_get_id(target_process)
         time.sleep(1)
-    time.sleep(5)
+
+    # Sleep to allow target program time to load
+    time.sleep(3)
 
     logfile.write("\t(INFO) " + target_process + " found with process id: " + str(process_id) + "\n")
     print(target_process, "found with pid", process_id)
@@ -70,16 +69,16 @@ def main():
             # Critical zone
             try:
                 if inject_into_process(os.path.abspath(dll), process_id):
-                    print("Injection appears to have succeeded for " + dll)
+                    print("Injection appears to have succeeded for ", dll)
                     logfile.write(
                         "\t(SUCCESS) Injection of " + dll + " into " + str(process_id) + " seems to have succeeded\n")
                 else:
-                    print("Injection appears to have failed for " + dll)
+                    print("Injection appears to have failed for ", dll)
                     logfile.write(
                         "\t(ERROR) Injection of " + dll + " into " + str(process_id) + " seems to have failed\n")
             except Exception as ex:
-                logfile.write("\t(ERROR) Failed to inject " + dll + " into " + str(process_id) + " (Exiting)\n")
                 print(ex)
+                logfile.write("\t(ERROR) Failed to inject " + dll + " into " + str(process_id) + " (Exiting)\n")
                 safe_exit(3)
 
             time.sleep(2)
@@ -102,6 +101,7 @@ def if_proc_running_get_id(proc_str):
 def inject_into_process(dll_path, pid):
     k32 = ctypes.WinDLL('kernel32', use_last_error=True)
 
+    # Following section sets the arguments and return types for various kernel32 functions
     k32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
     k32.OpenProcess.restype = wintypes.HANDLE
 
@@ -123,32 +123,37 @@ def inject_into_process(dll_path, pid):
     # Open process
     process_handle = k32.OpenProcess(2035711, False, pid)
     if not process_handle:
+        print("Getting process handle failed")
         logfile.write("\t(ERROR) Getting process handle (Error code: {0})\n".format(ctypes.get_last_error()))
         return False
 
     # Obtain handle to kernel32 module in memory
     encoded_dll_path = dll_path.encode("ascii")
-    req_write_size = (len(encoded_dll_path) + 1) * ctypes.sizeof(wintypes.WCHAR)
+    req_write_size = len(encoded_dll_path) + 1
     kernel_module_handle = k32.GetModuleHandleA("kernel32.dll".encode("ascii"))
     if not kernel_module_handle:
+        print("Getting kernel module handle failed")
         logfile.write("\t(ERROR) Getting kernel module (Error code: {0})\n".format(ctypes.get_last_error()))
         return False
 
     # Find load library
     load_lib = k32.GetProcAddress(kernel_module_handle, "LoadLibraryA".encode("ascii"))
     if not load_lib:
+        print("Getting LoadLibraryA address failed")
         logfile.write("\t(ERROR) Getting LoadLibraryA address (Error code: {0})\n".format(ctypes.get_last_error()))
         return False
 
     # Virtual allocation
     virt_alloc = k32.VirtualAllocEx(process_handle, None, req_write_size, 0x00001000, 0x40)
     if not virt_alloc:
+        print("Virtual allocation failed")
         logfile.write("\t(ERROR) Virtual allocation failed (Error code: {0})\n".format(ctypes.get_last_error()))
         return False
 
     # Write to process memory
     write_proc = k32.WriteProcessMemory(process_handle, virt_alloc, encoded_dll_path, req_write_size, 0)
     if not write_proc:
+        print("Writing to process memory failed")
         logfile.write("\t(ERROR) Writing to process memory failed (Error code: {0})\n".format(ctypes.get_last_error()))
         return False
 

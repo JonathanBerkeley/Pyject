@@ -129,7 +129,7 @@ def inject_into_process(dll_path, pid):
 
     # Obtain handle to kernel32 module in memory
     encoded_dll_path = dll_path.encode("ascii")
-    req_write_size = len(encoded_dll_path) + 1
+    req_write_size = len(encoded_dll_path)
     kernel_module_handle = k32.GetModuleHandleA("kernel32.dll".encode("ascii"))
     if not kernel_module_handle:
         print("Getting kernel module handle failed")

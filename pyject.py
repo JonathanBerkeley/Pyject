@@ -26,14 +26,18 @@ except ModuleNotFoundError:
 # Change this string to the name of the process you wish to target ===============================================
 target_process = ""
 if target_process == "":
-    print("You need to enter a process name in the target process field within the python file")
+    print("You need to enter a process name in the target_process field within the python file")
     sys.exit(5)
 
-# Change this string if you want a different logfile name
+# Logfile logs details about each session
 logfile = open("pyject.log", "a+")
 
 
 def main():
+    if os.name != "nt":
+        print("Script targets Windows operating systems only")
+        sys.exit(0)
+
     dlls = None
     logfile.writelines("\nNew session:\n")
 
@@ -51,10 +55,7 @@ def main():
     logfile.write("\t(INFO) Waiting for " + target_process + "\n")
     process_id = -1
     while process_id == -1:
-        if os.name == "nt":
-            _ = os.system("cls")
-        else:
-            _ = os.system("clear")
+        _ = os.system("cls")
         print("Waiting for " + target_process + " to start...")
         process_id = if_proc_running_get_id(target_process)
         time.sleep(1)
